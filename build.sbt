@@ -1,7 +1,15 @@
-name := "Vodmvi-Ads"
+name := "vodmvi-ads"
+ 
+version := "1.0" 
+      
+lazy val `vodmvi-ads` = (project in file(".")).enablePlugins(PlayJava)
 
-version := "0.1"
+resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
+      
+scalaVersion := "2.11.11"
 
-scalaVersion := "2.13.0"
+libraryDependencies ++= Seq( javaJdbc , cache , javaWs )
 
-libraryDependencies += "com.google.api-ads" % "google-ads" % "4.0.0"
+unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )  
+
+      
