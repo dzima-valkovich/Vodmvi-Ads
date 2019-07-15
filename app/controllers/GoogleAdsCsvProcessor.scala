@@ -2,39 +2,40 @@ package controllers
 
 import java.io.{File, FileReader}
 
+import com.google.ads.googleads.v2.resources.AdGroup
 import com.google.ads.googleads.v2.services.AdGroupOperation
 import javax.inject.Inject
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents}
-import entities.implicits._
+import utils.google.implicits._
 import services.Clients
-import google.utils.{AdGroupCsvReader, AdsClientFactory}
 import io.grpc.StatusRuntimeException
 import play.api.libs.json.Json
+import utils.google.AdsClientFactory
 
 import collection.JavaConverters._
 
-class CsvProcessor @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
-  private val client = AdsClientFactory()
+class GoogleAdsCsvProcessor @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+  private val googleClient = AdsClientFactory.google
 
-  def processGroupCsv(clientId: Long): Action[AnyContent] = Action {
+  def addGroupsFromCsvFile(clientId: Long): Action[AnyContent] = Action {
     implicit request =>
-      val operations = Clients(clientId).loadedGroupsCsvFilePaths
-        .flatMap(path => AdGroupCsvReader(new File(path))(clientId))
+      val operations = Clients(clientId)
+        .loadedGroupsCsvFilePaths
+        .flatMap(path => AdGroup.newBuilder.fromCsv(new File(path))(clientId).build)
         .map(adGroup => AdGroupOperation.newBuilder().setCreate(adGroup).build)
-        .toList.asJava
+        .toList
+        .asJava
 
       try {
-        val response = client.getLatestVersion.createAdGroupServiceClient()
+        val response = googleClient.getLatestVersion.createAdGroupServiceClient()
           .mutateAdGroups(clientId.toString, operations)
 
-        //        Ok(Json.parse(response.toString))
         Ok(response.toString)
-          .as("application/json")
+          .as(JSON)
       } catch {
         case e: RuntimeException => BadRequest(e.toString)
-          .as("application/json")
+          .as(JSON)
       }
-
   }
 
 }
