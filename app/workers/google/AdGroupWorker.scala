@@ -1,5 +1,7 @@
 package workers.google
 
-object AdGroupWorker {
+object AdGroupBuilder {
+
+  def fromCsv
 
 }
