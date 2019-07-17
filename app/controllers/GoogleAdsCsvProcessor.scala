@@ -21,7 +21,7 @@ class GoogleAdsCsvProcessor @Inject()(cc: ControllerComponents) extends Abstract
     implicit request =>
       val operations = Clients(clientId)
         .loadedGroupsCsvFilePaths
-        .flatMap(path => AdGroup.newBuilder.fromCsv(new File(path))(clientId).build)
+        .flatMap(path => AdGroup.newBuilder.fromCsv(new File(path), withDate = true)(clientId).build)
         .map(adGroup => AdGroupOperation.newBuilder().setCreate(adGroup).build)
         .toList
         .asJava
