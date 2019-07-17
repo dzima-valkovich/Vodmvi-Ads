@@ -2,6 +2,8 @@ package utils
 
 import java.io.File
 
+import model.PriceListRecord
+
 import scala.io.Source
 
 object CsvReader {
@@ -11,6 +13,16 @@ object CsvReader {
   private val adGroupAdBounds = (8, 9)
   private val keywordBound = (9, 11)
   private val criterionBoud = (11, 12)
+
+  def readPriceList(csvFile: File): Iterator[PriceListRecord] =
+    Source
+      .fromFile(csvFile)
+      .getLines()
+      .map(str => {
+        val record = str.split(',')
+        PriceListRecord(record(0), record(1).toDouble)
+      })
+
 
   def readAll(csvFile: File): Iterator[Array[String]] = {
     Source

@@ -15,6 +15,11 @@ class AdGroupController @Inject()(cc: ControllerComponents) extends AbstractCont
 
   import collection.JavaConverters._
 
+  def createAdGroupFromCsv(clientId: Long, campaignId: Long) = Action(parse.multipartFormData) {
+    implicit  request =>
+      
+  }
+
   def createAdGroupFromCsv(clientId: Long, campaignId: Long): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) {
     implicit request =>
 
