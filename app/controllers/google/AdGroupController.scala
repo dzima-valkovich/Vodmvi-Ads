@@ -1,5 +1,9 @@
 package controllers.google
 
+import akka.actor.ActorSystem
+import akka.util.Timeout
+import aktors.PriceListActor.ProcessPriceList
+import aktors.google.PriceListActor
 import com.google.ads.googleads.v2.common.{ExpandedTextAdInfo, Keyword, KeywordInfo}
 import com.google.ads.googleads.v2.resources.{Ad, AdGroup, AdGroupAd, AdGroupCriterion}
 import com.google.ads.googleads.v2.services.{AdGroupAdOperation, AdGroupCriterionOperation, AdGroupOperation}
@@ -10,14 +14,20 @@ import utils.CsvReader
 import utils.google.AdsClientFactory
 import utils.google.implicits._
 
-class AdGroupController @Inject()(cc: ControllerComponents) extends AbstractController(cc) {
+class AdGroupController @Inject()(system: ActorSystem, cc: ControllerComponents) extends AbstractController(cc) {
   private val googleClient = AdsClientFactory.google
 
   import collection.JavaConverters._
+  import akka.pattern.ask
+  import scala.concurrent.duration._
 
-  def createAdGroupFromCsv(clientId: Long, campaignId: Long) = Action(parse.multipartFormData) {
-    implicit  request =>
-      
+  def test(clientId: Long): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData).async {
+    request =>
+      implicit val timeout: Timeout = 5.seconds
+      val actor = system.actorOf(PriceListActor.props)
+      (actor ? ProcessPriceList(clientId, request.body.files.head.ref.toFile))
+        .mapTo[String]
+        .map(m => Ok(m))
   }
 
   def createAdGroupFromCsv(clientId: Long, campaignId: Long): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData) {
