@@ -14,14 +14,14 @@ object CsvReader {
   private val keywordBound = (9, 11)
   private val criterionBoud = (11, 12)
 
-  def readPriceList(csvFile: File): Iterator[PriceListRecord] =
+  def readPriceList(csvFile: File): Iterable[PriceListRecord] =
     Source
       .fromFile(csvFile)
       .getLines()
       .map(str => {
         val record = str.split(',')
         PriceListRecord(record(0), record(1).toDouble)
-      })
+      }).toIterable
 
 
   def readAll(csvFile: File): Iterator[Array[String]] = {

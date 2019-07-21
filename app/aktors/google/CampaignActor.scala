@@ -26,7 +26,7 @@ object CampaignActor {
 
     val campaign: Campaign =
       Campaign.newBuilder()
-        .setName(StringValue.of(campaignName + ' ' + System.currentTimeMillis()))
+        .setName(StringValue.of(campaignName))
         .setAdvertisingChannelType(AdvertisingChannelType.SEARCH)
         .setStatus(CampaignStatus.ENABLED)
         .setManualCpc(ManualCpc.newBuilder().build())

@@ -13,7 +13,7 @@ object PriceListFileActor {
 
   final case class ReadFromCsvRequest(file: File)
 
-  case class ReadFromCsvResponse(priceList: Iterator[PriceListRecord])
+  case class ReadFromCsvResponse(priceList: Iterable[PriceListRecord])
 
 }
 
