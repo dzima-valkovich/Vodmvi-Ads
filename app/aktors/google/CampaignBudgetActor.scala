@@ -29,9 +29,9 @@ object CampaignBudgetActor {
 
   final case class AddCampaignBudgetRequest(customerId: Long, name: String, amount: Long)
 
-  //  final case class AddCampaignBudget(customerId: Long, name: String)
-
-  //  final case class AddCampaignBudgetAndCampaign(customerId: Long, budgetName: String, compaignName: String)
+  trait Factory {
+    def apply(): Actor
+  }
 
 }
 

@@ -13,7 +13,9 @@ import aktors.google.ExpandedTextAdsActor.AddExpandedTextsRequest
 import aktors.google.KeywordActor.AddKeywordsRequest
 import aktors.google.PriceListActor.{AddAdGroupsResponse, AddCampaignBudgetResponse, AddCampaignResponse, AddExpandedTextsResponse, AddKeywordsResponse, ProcessPriceListRequest, Synchronizer}
 import com.google.ads.googleads.v2.services.{MutateAdGroupAdsResponse, MutateAdGroupCriteriaResponse, MutateAdGroupsResponse, MutateCampaignBudgetsResponse, MutateCampaignsResponse}
+import javax.inject.Inject
 import model.PriceListRecord
+import play.api.libs.concurrent.InjectedActorSupport
 
 import collection.JavaConverters._
 
@@ -47,9 +49,9 @@ object PriceListActor {
     }
   }
 
-  def props(customerId: Long): Props = Props(new PriceListActor(customerId))
+  def props(customerId: Long): Props = Props[PriceListActor]
 
-  final case class ProcessPriceListRequest(priceList: File)
+  final case class ProcessPriceListRequest(customerId: Long, priceList: File)
 
   final case class AddCampaignBudgetResponse(response: MutateCampaignBudgetsResponse)
 
@@ -63,15 +65,25 @@ object PriceListActor {
 
 }
 
-class PriceListActor(val customerId: Long) extends Actor {
+class PriceListActor @Inject()(
+                                priceListFileActorFactory: PriceListFileActor.Factory,
+                                campaignBudgetActorFactory: CampaignBudgetActor.Factory,
+                                campaignActorFactory: CampaignActor.Factory,
+                                adGroupActorFactory: AdGroupActor.Factory,
+                                expandedTextAdsActorFactory: ExpandedTextAdsActor.Factory,
+                                keywordActorFactory: KeywordActor.Factory
+                              )
+  extends Actor with InjectedActorSupport {
 
   private val ReadFromCsvAndAddCampaignSynchronizer = Synchronizer[Iterable[PriceListRecord], MutateCampaignsResponse](
     (objectA: Iterable[PriceListRecord], objectB: MutateCampaignsResponse) => {
-      val adGroupActorRef = context.actorOf(AdGroupActor.props)
+      val adGroupActorRef = injectedChild(adGroupActorFactory(), "AdGroupActor")
       val campaignId = objectB.getResults(0).getResourceName.split('/')(3).toLong
       adGroupActorRef ! AddAdGroupsRequest(customerId, campaignId, objectA)
     }
   )
+
+  private var customerId: Long = _
 
   private var firstSender: ActorRef = _
 
@@ -79,16 +91,17 @@ class PriceListActor(val customerId: Long) extends Actor {
   private var tuple: Iterable[(PriceListRecord, String)] = _
 
   override def receive: Receive = {
-    case ProcessPriceListRequest(priceListFile: File) =>
+    case ProcessPriceListRequest(id: Long, priceListFile: File) =>
+      customerId = id
       firstSender = sender()
-      val campaignBudgetActorRef = context.actorOf(CampaignBudgetActor.props)
+      val campaignBudgetActorRef = injectedChild(campaignBudgetActorFactory(), "CampaignBudgetActor")
       campaignBudgetActorRef ! AddCampaignBudgetRequest(customerId, "Test budget! " + ' ' + '(' + new Date() + ')', 500000)
 
-      val priceListFileActorRef = context.actorOf(PriceListFileActor.props)
+      val priceListFileActorRef = injectedChild(priceListFileActorFactory(), "PriceListFileActor")
       priceListFileActorRef ! ReadFromCsvRequest(priceListFile)
 
     case AddCampaignBudgetResponse(response: MutateCampaignBudgetsResponse) =>
-      val actorRef = context.actorOf(CampaignActor.props)
+      val actorRef = injectedChild(campaignActorFactory(), "CampaignActor")
       actorRef ! AddCampaignRequest(customerId, "Test campaign! " + ' ' + '(' + new Date() + ')', response.getResults(0).getResourceName)
 
     case AddCampaignResponse(response: MutateCampaignsResponse) => ReadFromCsvAndAddCampaignSynchronizer.objectB = response
@@ -99,11 +112,11 @@ class PriceListActor(val customerId: Long) extends Actor {
       tuple = ReadFromCsvAndAddCampaignSynchronizer.objectA
         .zip(response.getResultsList.asScala.map(_.getResourceName))
 
-      val expandedTextAdsActorRef = context.actorOf(ExpandedTextAdsActor.props)
+      val expandedTextAdsActorRef = injectedChild(expandedTextAdsActorFactory(), "ExpandedTextAdsActor")
       expandedTextAdsActorRef ! AddExpandedTextsRequest(customerId, tuple)
 
     case AddExpandedTextsResponse(_: MutateAdGroupAdsResponse) =>
-      val keywordActorRef = context.actorOf(KeywordActor.props)
+      val keywordActorRef = injectedChild(keywordActorFactory(), "KeywordActor")
       keywordActorRef ! AddKeywordsRequest(customerId, tuple)
 
     case AddKeywordsResponse(_: MutateAdGroupCriteriaResponse) =>

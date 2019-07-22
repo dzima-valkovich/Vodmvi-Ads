@@ -44,6 +44,10 @@ object KeywordActor {
 
   final case class AddKeywordsRequest(customerId: Long, tuple: Iterable[(PriceListRecord, String)])
 
+  trait Factory {
+    def apply(): Actor
+  }
+
 }
 
 class KeywordActor extends Actor {

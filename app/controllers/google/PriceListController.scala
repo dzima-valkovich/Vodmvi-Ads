@@ -1,13 +1,13 @@
 package controllers.google
 
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.util.Timeout
 import aktors.google.PriceListActor
-import aktors.google.PriceListActor.{ProcessPriceListRequest}
+import aktors.google.PriceListActor.ProcessPriceListRequest
 import com.google.ads.googleads.v2.common.{ExpandedTextAdInfo, Keyword, KeywordInfo}
 import com.google.ads.googleads.v2.resources.{Ad, AdGroup, AdGroupAd, AdGroupCriterion}
 import com.google.ads.googleads.v2.services.{AdGroupAdOperation, AdGroupCriterionOperation, AdGroupOperation}
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import play.api.libs.Files
 import play.api.mvc.{AbstractController, Action, AnyContent, ControllerComponents, MultipartFormData}
 import utils.CsvReader
@@ -16,7 +16,7 @@ import utils.google.implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class PriceListController @Inject()(system: ActorSystem, cc: ControllerComponents) extends AbstractController(cc) {
+class PriceListController @Inject()(@Named("PriceListActor") priceListActorRef: ActorRef, cc: ControllerComponents) extends AbstractController(cc) {
   private val googleClient = AdsClientFactory.google
 
   import collection.JavaConverters._
@@ -26,8 +26,7 @@ class PriceListController @Inject()(system: ActorSystem, cc: ControllerComponent
   def createAdsCampaignFromCsvPriceList(clientId: Long): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData).async {
     request =>
       implicit val timeout: Timeout = 10.seconds
-      val actor = system.actorOf(PriceListActor.props(clientId))
-      (actor ? ProcessPriceListRequest(request.body.files.head.ref.toFile))
+      (priceListActorRef ? ProcessPriceListRequest(clientId, request.body.files.head.ref.toFile))
         .mapTo[String]
         .map(Ok(_))
   }

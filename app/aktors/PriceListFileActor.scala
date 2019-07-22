@@ -15,6 +15,10 @@ object PriceListFileActor {
 
   case class ReadFromCsvResponse(priceList: Iterable[PriceListRecord])
 
+  trait Factory {
+    def apply(): Actor
+  }
+
 }
 
 class PriceListFileActor extends Actor {

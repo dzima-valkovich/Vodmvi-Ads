@@ -49,6 +49,10 @@ object ExpandedTextAdsActor {
 
   final case class AddExpandedTextsRequest(customerId: Long, tuple: Iterable[(PriceListRecord, String)])
 
+  trait Factory {
+    def apply(): Actor
+  }
+
 }
 
 class ExpandedTextAdsActor extends Actor {

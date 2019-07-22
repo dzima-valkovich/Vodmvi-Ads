@@ -20,7 +20,7 @@ object AdGroupActor {
   def addAdGroups(customerId: Long, campaignId: Long, records: Iterable[PriceListRecord]): MutateAdGroupsResponse = {
     val adGroupOperations = records
       .map(record => AdGroup.newBuilder()
-        .setName(StringValue.of(campaignId + ' ' + record.keyword + ' ' + '(' + new Date() + ')'))
+        .setName(StringValue.of(campaignId + " " + record.keyword + ' ' + '(' + new Date() + ')'))
         .setStatus(AdGroupStatus.ENABLED)
         .setCampaign(StringValue.of(ResourceNames.campaign(customerId, campaignId)))
         .setType(AdGroupType.SEARCH_STANDARD)
@@ -40,6 +40,10 @@ object AdGroupActor {
   def props: Props = Props[AdGroupActor]
 
   final case class AddAdGroupsRequest(customerId: Long, campaignId: Long, records: Iterable[PriceListRecord])
+
+  trait Factory {
+    def apply(): Actor
+  }
 
 }
 
