@@ -1,7 +1,9 @@
-package aktors.google.inject
+package actors.inject
 
-import aktors.PriceListFileActor
-import aktors.google.{AdGroupActor, CampaignActor, CampaignBudgetActor, ExpandedTextAdsActor, KeywordActor, PriceListActor}
+import actors.google.dispatchers.PriceListActor
+import actors.google.workers._
+import actors.google.workers.{AdGroupActor, CampaignActor, CampaignBudgetActor, ExpandedTextAdsActor}
+import actors.workers.PriceListFileActor
 import com.google.inject.AbstractModule
 import play.api.libs.concurrent.AkkaGuiceSupport
 

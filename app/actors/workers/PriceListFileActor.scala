@@ -1,11 +1,12 @@
-package aktors
+package actors.workers
 
 import java.io.File
 
+import actors.workers.PriceListFileActor.{ReadFromCsvRequest, ReadFromCsvResponse}
 import akka.actor.{Actor, Props}
-import aktors.PriceListFileActor.{ReadFromCsvRequest, ReadFromCsvResponse}
 import model.PriceListRecord
-import utils.CsvReader
+
+import scala.io.Source
 
 object PriceListFileActor {
 
@@ -22,10 +23,18 @@ object PriceListFileActor {
 }
 
 class PriceListFileActor extends Actor {
+  private def readPriceList(csvFile: File): Iterable[PriceListRecord] =
+    Source
+      .fromFile(csvFile)
+      .getLines()
+      .map(str => {
+        val record = str.split(',')
+        PriceListRecord(record(0), record(1).toDouble)
+      }).toIterable
 
   override def receive: Receive = {
     case ReadFromCsvRequest(file: File) =>
-      val records = CsvReader.readPriceList(file)
+      val records = readPriceList(file)
       sender() ! ReadFromCsvResponse(records)
   }
 }
