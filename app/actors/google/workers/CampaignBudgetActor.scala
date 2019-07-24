@@ -27,11 +27,9 @@ class CampaignBudgetActor extends Actor {
   private def addCampaignBudget(campaignBudget: CampaignBudget): CampaignBudget = {
     val op = CampaignBudgetOperation.newBuilder().setCreate(campaignBudget.toGoogle).build()
     val client = AdsClientFactory.google.getLatestVersion.createCampaignBudgetServiceClient()
-    val response = client.mutateCampaignBudgets(campaignBudget.customer.id.toString, ImmutableList.of(op))
+    val response = client.mutateCampaignBudgets(campaignBudget.customer.id.get, ImmutableList.of(op))
     client.shutdown()
-    val campaignId = response.getResults(0).getResourceName.split('/')(3)
-    campaignBudget.id = campaignId
-    campaignBudget
+    campaignBudget.copy(id = Some(response.getResults(0).getResourceName.split('/')(3)))
   }
 
   override def receive: Receive = {

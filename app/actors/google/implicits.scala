@@ -1,5 +1,6 @@
 package actors.google
 
+import com.google.ads.googleads.v2.enums.BiddingStrategyTypeEnum.BiddingStrategyType
 import com.google.ads.googleads.v2.common.{ExpandedTextAdInfo, KeywordInfo, ManualCpc}
 import com.google.ads.googleads.v2.enums.AdGroupAdStatusEnum.AdGroupAdStatus
 import com.google.ads.googleads.v2.enums.AdGroupCriterionStatusEnum.AdGroupCriterionStatus
@@ -10,7 +11,7 @@ import com.google.ads.googleads.v2.enums.BudgetDeliveryMethodEnum.BudgetDelivery
 import com.google.ads.googleads.v2.enums.CampaignStatusEnum.CampaignStatus
 import com.google.ads.googleads.v2.enums.KeywordMatchTypeEnum.KeywordMatchType
 import com.google.ads.googleads.v2.resources
-import com.google.ads.googleads.v2.resources.AdGroupCriterion
+import com.google.ads.googleads.v2.resources.{AdGroupCriterion, BiddingStrategy}
 import com.google.ads.googleads.v2.resources.Campaign.NetworkSettings
 import com.google.ads.googleads.v2.utils.ResourceNames
 import com.google.protobuf.{BoolValue, Int64Value, StringValue}
@@ -29,9 +30,9 @@ object implicits {
       AdGroup.newBuilder()
         .setName(StringValue.of(name))
         .setStatus(AdGroupStatus.ENABLED)
-        .setCampaign(StringValue.of(ResourceNames.campaign(customer.id.toLong, campaign.id.toLong)))
+        .setCampaign(StringValue.of(ResourceNames.campaign(customer.id.get.toLong, campaign.id.get.toLong)))
         .setType(AdGroupType.SEARCH_STANDARD)
-        .setCpcBidMicros(Int64Value.of(cpc))
+//        .setCpcBidMicros(Int64Value.of(cpc))
         .build()
     }
   }
@@ -58,7 +59,7 @@ object implicits {
         .setAdvertisingChannelType(AdvertisingChannelType.SEARCH)
         .setStatus(CampaignStatus.ENABLED)
         .setManualCpc(ManualCpc.newBuilder().build())
-        .setCampaignBudget(StringValue.of(ResourceNames.campaignBudget(customer.id.toLong, budget.id.toLong)))
+        .setCampaignBudget(StringValue.of(ResourceNames.campaignBudget(customer.id.get.toLong, budget.id.get.toLong)))
         .setNetworkSettings(networkSettings)
         .setStartDate(StringValue.of(startDateTime.toString("yyyyMMdd")))
         .setEndDate(StringValue.of(startDateTime.plusDays(duration).toString("yyyyMMdd")))
@@ -92,7 +93,7 @@ object implicits {
         .build()
 
       AdGroupCriterion.newBuilder()
-        .setAdGroup(StringValue.of(ResourceNames.adGroup(customer.id.toLong, adGroup.id.toLong)))
+        .setAdGroup(StringValue.of(ResourceNames.adGroup(customer.id.get.toLong, adGroup.id.get.toLong)))
         .setStatus(AdGroupCriterionStatus.ENABLED)
         .setKeyword(keywordInfo)
         .build()
@@ -119,7 +120,7 @@ object implicits {
         .build()
 
       AdGroupAd.newBuilder()
-        .setAdGroup(StringValue.of(ResourceNames.adGroup(customer.id.toLong, adGroup.id.toLong)))
+        .setAdGroup(StringValue.of(ResourceNames.adGroup(customer.id.get.toLong, adGroup.id.get.toLong)))
         .setStatus(AdGroupAdStatus.ENABLED)
         .setAd(ad)
         .build()

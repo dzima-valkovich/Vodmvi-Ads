@@ -4,25 +4,18 @@ import java.util.Date
 
 object ads {
 
-  trait Resource {
-    var id: String = _
-  }
+  case class Resource(id: Option[String] = None)
 
-  case class Customer() extends AnyRef with Resource {
-    def this(id: String) = {
-      this()
-      this.id = id
-    }
-  }
+  case class Customer(id: Option[String] = None)
 
-  case class AdGroup(customer: Customer, campaign: Campaign, name: String, cpc: Long) extends AnyRef with Resource
+  case class AdGroup(customer: Customer, campaign: Campaign, name: String, id: Option[String] = None)
 
-  case class Campaign(customer: Customer, budget: CampaignBudget, name: String, startDate: Date, duration: Int) extends AnyRef with Resource
+  case class Campaign(customer: Customer, budget: CampaignBudget, name: String, startDate: Date, duration: Int, id: Option[String] = None)
 
-  case class CampaignBudget(customer: Customer, name: String, amount: Long) extends AnyRef with Resource
+  case class CampaignBudget(customer: Customer, name: String, amount: Long, id: Option[String] = None)
 
-  case class Keyword(customer: Customer, adGroup: AdGroup, keyword: String) extends AnyRef with Resource
+  case class Keyword(customer: Customer, adGroup: AdGroup, keyword: String, id: Option[String] = None)
 
-  case class Ad(customer: Customer, adGroup: AdGroup, headline1: String, headline2: String, description: String, url: String) extends AnyRef with Resource
+  case class Ad(customer: Customer, adGroup: AdGroup, headline1: String, headline2: String, description: String, url: String, id: Option[String] = None)
 
 }
