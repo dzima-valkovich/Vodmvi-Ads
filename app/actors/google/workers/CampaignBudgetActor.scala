@@ -7,6 +7,8 @@ import com.google.common.collect.ImmutableList
 import model.ads.CampaignBudget
 import utils.google.AdsClientFactory
 import actors.google.implicits.CampaignBudgetRich
+import actors.google.implicits.AdsClientFactoryRich
+import javax.inject.Inject
 
 object CampaignBudgetActor {
 
@@ -22,11 +24,11 @@ object CampaignBudgetActor {
 
 }
 
-class CampaignBudgetActor extends Actor {
+class CampaignBudgetActor @Inject() (adsClientFactory: AdsClientFactory) extends Actor {
 
   private def addCampaignBudget(campaignBudget: CampaignBudget): CampaignBudget = {
     val op = CampaignBudgetOperation.newBuilder().setCreate(campaignBudget.toGoogle).build()
-    val client = AdsClientFactory.google.getLatestVersion.createCampaignBudgetServiceClient()
+    val client = adsClientFactory.google(campaignBudget.customer).getLatestVersion.createCampaignBudgetServiceClient()
     val response = client.mutateCampaignBudgets(campaignBudget.customer.id.get, ImmutableList.of(op))
     client.shutdown()
     campaignBudget.copy(id = Some(response.getResults(0).getResourceName.split('/')(3)))

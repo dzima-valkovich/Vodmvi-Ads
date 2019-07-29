@@ -6,6 +6,8 @@ import com.google.ads.googleads.v2.services.AdGroupOperation
 import model.ads.{AdGroup, Customer}
 import utils.google.AdsClientFactory
 import actors.google.implicits.AdGroupRich
+import actors.google.implicits.AdsClientFactoryRich
+import javax.inject.Inject
 
 import scala.collection.JavaConverters._
 
@@ -21,14 +23,14 @@ object AdGroupActor {
 
 }
 
-class AdGroupActor extends Actor {
+class AdGroupActor @Inject() (adsClientFactory: AdsClientFactory) extends Actor {
   private def addAdGroups(customer: Customer, adGroups: Iterable[AdGroup]): Iterable[AdGroup] = {
     val adGroupOperations = adGroups
       .map(group => AdGroupOperation.newBuilder().setCreate(group.toGoogle).build())
       .toList
       .asJava
 
-    val client = AdsClientFactory.google.getLatestVersion.createAdGroupServiceClient()
+    val client = adsClientFactory.google(customer).getLatestVersion.createAdGroupServiceClient()
     val response = client.mutateAdGroups(customer.id.get, adGroupOperations)
     client.shutdown()
     adGroups.zip(response.getResultsList.asScala)

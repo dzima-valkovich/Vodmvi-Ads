@@ -1,5 +1,6 @@
 package actors.google
 
+import com.google.ads.googleads.lib.GoogleAdsClient
 import com.google.ads.googleads.v2.enums.BiddingStrategyTypeEnum.BiddingStrategyType
 import com.google.ads.googleads.v2.common.{ExpandedTextAdInfo, KeywordInfo, ManualCpc}
 import com.google.ads.googleads.v2.enums.AdGroupAdStatusEnum.AdGroupAdStatus
@@ -17,8 +18,15 @@ import com.google.ads.googleads.v2.utils.ResourceNames
 import com.google.protobuf.{BoolValue, Int64Value, StringValue}
 import model.ads._
 import org.joda.time.DateTime
+import utils.google.AdsClientFactory
 
 object implicits {
+
+  implicit class AdsClientFactoryRich(adsClientFactory: AdsClientFactory) {
+    def google(customer: Customer): GoogleAdsClient = {
+      adsClientFactory.google(customer.clientSecret, customer.refreshToken)
+    }
+  }
 
   implicit class AdGroupRich(adGroup: AdGroup) {
 
@@ -32,7 +40,7 @@ object implicits {
         .setStatus(AdGroupStatus.ENABLED)
         .setCampaign(StringValue.of(ResourceNames.campaign(customer.id.get.toLong, campaign.id.get.toLong)))
         .setType(AdGroupType.SEARCH_STANDARD)
-//        .setCpcBidMicros(Int64Value.of(cpc))
+        //        .setCpcBidMicros(Int64Value.of(cpc))
         .build()
     }
   }

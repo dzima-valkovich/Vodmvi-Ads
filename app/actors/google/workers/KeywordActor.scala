@@ -6,6 +6,8 @@ import com.google.ads.googleads.v2.services.AdGroupCriterionOperation
 import model.ads.{Customer, Keyword}
 import utils.google.AdsClientFactory
 import actors.google.implicits.KeywordRich
+import actors.google.implicits.AdsClientFactoryRich
+import javax.inject.Inject
 
 import scala.collection.JavaConverters._
 
@@ -22,14 +24,14 @@ object KeywordActor {
 
 }
 
-class KeywordActor extends Actor {
+class KeywordActor @Inject()(adsClientFactory: AdsClientFactory) extends Actor {
   private def addKeywords(customer: Customer, keywords: Iterable[Keyword]): Iterable[Keyword] = {
     val criterionOperations = keywords
       .map(keyword => AdGroupCriterionOperation.newBuilder().setCreate(keyword.toGoogle).build())
       .toList
       .asJava
 
-    val client = AdsClientFactory.google.getLatestVersion.createAdGroupCriterionServiceClient()
+    val client = adsClientFactory.google(customer).getLatestVersion.createAdGroupCriterionServiceClient()
     val response = client.mutateAdGroupCriteria(customer.id.get, criterionOperations)
     client.shutdown()
     keywords.zip(response.getResultsList.asScala)

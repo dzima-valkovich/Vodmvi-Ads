@@ -4,7 +4,7 @@ import java.io.File
 import java.util.Date
 
 import actors.concurrent.Synchronizer
-import actors.google.dispatchers.PriceListActor.{ProcessPriceListRequest, ProcessPriceListResponse}
+import actors.google.dispatchers.PriceListActor.{ProcessPriceListRequest}
 import actors.google.workers.AdGroupActor.{AddAdGroupsRequest, AddAdGroupsResponse}
 import actors.google.workers.CampaignActor.{AddCampaignRequest, AddCampaignResponse}
 import actors.google.workers.CampaignBudgetActor.{AddCampaignBudgetRequest, AddCampaignBudgetResponse}
