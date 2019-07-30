@@ -24,7 +24,7 @@ object implicits {
 
   implicit class AdsClientFactoryRich(adsClientFactory: AdsClientFactory) {
     def google(customer: Customer): GoogleAdsClient = {
-      adsClientFactory.google(customer.clientSecret, customer.refreshToken)
+      adsClientFactory.google(customer.refreshToken.orNull, customer.loginCustomerId.orNull)
     }
   }
 

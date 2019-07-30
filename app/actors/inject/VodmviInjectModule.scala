@@ -1,5 +1,6 @@
 package actors.inject
 
+import actors.google.auth.Oauth2Actor
 import actors.google.dispatchers.{DispatcherActor, PriceListActor}
 import actors.google.workers._
 import actors.google.workers.{AdGroupActor, CampaignActor, CampaignBudgetActor, ExpandedTextAdsActor}
@@ -18,5 +19,8 @@ class VodmviInjectModule extends AbstractModule with AkkaGuiceSupport {
     bindActorFactory[AdGroupActor, AdGroupActor.Factory]
     bindActorFactory[ExpandedTextAdsActor, ExpandedTextAdsActor.Factory]
     bindActorFactory[KeywordActor, KeywordActor.Factory]
+
+    bindActor[Oauth2Actor]("Oauth2Actor")
+    bindActorFactory[Oauth2Actor, Oauth2Actor.Factory]
   }
 }

@@ -4,7 +4,9 @@
 
 # Home page
 
-POST        /create/campaign/pricelist/csv/google        controllers.google.PriceListController.createAdsCampaignFromCsvPriceList(clientId: String ?= "8705483891")
+GET         /oauth2callback                              controllers.google.AuthController.oauth2callback
+POST        /auth                                        controllers.google.AuthController.auth
+POST        /create/campaign/pricelist/csv/google        controllers.google.PriceListController.createAdsCampaignFromCsvPriceList(clientId: String, refreshToken: String, loginCustomerId: String  ?= null)
 
 POST        /upload/csv                                  controllers.Uploader.uploadCsvFile
 POST        /upload/csvs                                 controllers.Uploader.uploadCsvFiles

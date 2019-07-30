@@ -13,18 +13,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class PriceListController @Inject()(
                                      @Named("DispatcherActor") dispatcherActorRef: ActorRef,
                                      cc: ControllerComponents
-                                   ) extends AbstractController(cc) {
+                                   )
+  extends AbstractController(cc) {
 
   import collection.JavaConverters._
   import akka.pattern.ask
   import scala.concurrent.duration._
 
-  def createAdsCampaignFromCsvPriceList(clientId: String): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData).async {
+  def createAdsCampaignFromCsvPriceList(clientId: String, refreshToken: String, loginCustomerId: String): Action[MultipartFormData[Files.TemporaryFile]] = Action(parse.multipartFormData).async {
     request =>
       implicit val timeout: Timeout = 10.seconds
-      (dispatcherActorRef ? ProcessPriceListRequest(Customer(Some(clientId)
-        , "N9DYIF2uEI4bjEFbhByv152e"
-        , "1/RwQVTp8jrPxDPQyUp83Vg-UjnrqVHsB8G1f1IFVLZ3w")
+      (dispatcherActorRef ? ProcessPriceListRequest(Customer(
+        id = Some(clientId)
+        , refreshToken = Some(refreshToken)
+        , loginCustomerId = Some(loginCustomerId))
         , request.body.files.head.ref.toFile))
         .mapTo[String]
         .map(Ok(_))
