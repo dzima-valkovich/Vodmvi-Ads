@@ -13,7 +13,9 @@ class AdsClientFactory @Inject()(config: Configuration) {
 
   def google(refreshToken: String, loginCustomerId: String = null): GoogleAdsClient =
     try {
-      props.setLoginCustomerId(loginCustomerId)
+      if (loginCustomerId != null) {
+        props.setLoginCustomerId(loginCustomerId)
+      }
       props.setRefreshToken(refreshToken)
 
       GoogleAdsClient

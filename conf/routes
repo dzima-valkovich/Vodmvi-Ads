@@ -4,6 +4,7 @@
 
 # Home page
 
+GET         /customer/accounts                           controllers.google.CustomerController.listAccessibleCustomers(refreshToken : String)
 GET         /oauth2callback                              controllers.google.AuthController.oauth2callback
 POST        /auth                                        controllers.google.AuthController.auth
 POST        /create/campaign/pricelist/csv/google        controllers.google.PriceListController.createAdsCampaignFromCsvPriceList(clientId: String, refreshToken: String, loginCustomerId: String  ?= null)
