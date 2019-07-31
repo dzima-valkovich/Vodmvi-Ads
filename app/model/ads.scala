@@ -6,7 +6,8 @@ object ads {
 
   case class Resource(id: Option[String] = None)
 
-  case class Customer(id: Option[String] = None, clientSecret: String, refreshToken: String)
+  case class Customer(id: Option[String] = None, refreshToken: Option[String] = None,
+                      email: Option[String] = None, loginCustomerId: Option[String] = None)
 
   case class AdGroup(customer: Customer, campaign: Campaign, name: String, id: Option[String] = None)
 
